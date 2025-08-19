@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dodge or Die: Monster Edition</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <div class="game-ui">
+            <div id="score">Score: 0</div>
+            <div id="timer">Time: 0s</div>
+            <div id="armor" class="hidden">Armor: 0s</div>
+        </div>
+
+        <div class="mobile-controls">
+            <div class="control-btn" id="leftBtn">←</div>
+            <div class="control-btn" id="upBtn">↑</div>
+            <div class="control-btn" id="downBtn">↓</div>
+            <div class="control-btn" id="rightBtn">→</div>
+        </div>
+
+        <div id="startScreen" class="screen">
+            <h1>DODGE OR DIE</h1>
+            <h2>MONSTER EDITION</h2>
+            <div class="instructions">
+                <p>Survive as long as possible by dodging angry monsters!</p>
+                <p>Collect apples for temporary armor protection</p>
+                <p>Use arrow keys or on-screen buttons to move</p>
+            </div>
+            <button id="startBtn" class="btn">START GAME</button>
+            <div id="bestScoreStart" class="best-score">Best Score: 0</div>
+        </div>
+
+        <div id="gameOverScreen" class="screen hidden">
+            <h2>GAME OVER</h2>
+            <div class="score-display">Your Score: <span id="finalScore">0</span></div>
+            <div class="best-score">Best Score: <span id="bestScore">0</span></div>
+            <button id="restartBtn" class="btn">PLAY AGAIN</button>
+        </div>
+
+        <div class="armor-effect hidden"></div>
+    </div>
+
+    <!-- Audio elements -->
+    <audio id="bgMusic" loop>
+        <source src="assets/bg-music.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="appleSound">
+        <source src="assets/catch.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="gameOverSound">
+        <source src="assets/game-over.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="armorSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-power-up-3060.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="game.js"></script>
+</body>
+</html>
