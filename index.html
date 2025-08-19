@@ -16,11 +16,9 @@
             <div id="armor" class="hidden">Armor: 0s</div>
         </div>
 
-        <div class="mobile-controls">
-            <div class="control-btn" id="leftBtn">←</div>
-            <div class="control-btn" id="upBtn">↑</div>
-            <div class="control-btn" id="downBtn">↓</div>
-            <div class="control-btn" id="rightBtn">→</div>
+        <div id="joystickContainer" class="joystick-container">
+            <div id="joystickBase" class="joystick-base"></div>
+            <div id="joystickHandle" class="joystick-handle"></div>
         </div>
 
         <div id="startScreen" class="screen">
@@ -28,8 +26,8 @@
             <h2>MONSTER EDITION</h2>
             <div class="instructions">
                 <p>Survive as long as possible by dodging angry monsters!</p>
+                <p>Use arrow keys or the joystick to move</p>
                 <p>Collect apples for temporary armor protection</p>
-                <p>Use arrow keys or on-screen buttons to move</p>
             </div>
             <button id="startBtn" class="btn">START GAME</button>
             <div id="bestScoreStart" class="best-score">Best Score: 0</div>
@@ -47,18 +45,18 @@
 
     <!-- Audio elements -->
     <audio id="bgMusic" loop>
-        <source src="assets/bg-music.mp3" type="audio/mpeg">
+        <source src="https://assets.mixkit.co/music/preview/mixkit-game-show-intro-579.mp3" type="audio/mpeg">
     </audio>
     <audio id="appleSound">
-        <source src="assets/catch.mp3" type="audio/mpeg">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3" type="audio/mpeg">
     </audio>
     <audio id="gameOverSound">
-        <source src="assets/game-over.mp3" type="audio/mpeg">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-game-over-470.mp3" type="audio/mpeg">
     </audio>
     <audio id="armorSound">
         <source src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-power-up-3060.mp3" type="audio/mpeg">
     </audio>
 
-    <script src="game.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

@@ -11,10 +11,9 @@ const armorDisplay = document.getElementById('armor');
 const finalScore = document.getElementById('finalScore');
 const bestScore = document.getElementById('bestScore');
 const bestScoreStart = document.getElementById('bestScoreStart');
-const leftBtn = document.getElementById('leftBtn');
-const upBtn = document.getElementById('upBtn');
-const downBtn = document.getElementById('downBtn');
-const rightBtn = document.getElementById('rightBtn');
+const joystickContainer = document.getElementById('joystickContainer');
+const joystickBase = document.getElementById('joystickBase');
+const joystickHandle = document.getElementById('joystickHandle');
 const armorEffect = document.querySelector('.armor-effect');
 
 // Audio elements
@@ -47,6 +46,12 @@ let gameRunning = false;
 let storedBestScore = localStorage.getItem('dodgeOrDieBestScore') || 0;
 let armorTime = 0;
 
+// Joystick variables
+let joystickActive = false;
+let joystickX = 0;
+let joystickY = 0;
+const joystickRadius = 60; // Maximum joystick movement radius
+
 // Monster colors
 const monsterColors = ['#ff416c', '#ff4b2b', '#ff6b6b', '#ff9a3d', '#ffd166', '#06d6a0', '#118ab2', '#073b4c'];
 
@@ -66,38 +71,81 @@ window.addEventListener('keyup', (e) => {
     keys[e.key] = false;
 });
 
-// Touch controls for mobile
-upBtn.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    keys['ArrowUp'] = true;
-});
+// Virtual Joystick Implementation
+function setupJoystick() {
+    // Get the position of the joystick base
+    const baseRect = joystickBase.getBoundingClientRect();
+    const baseCenterX = baseRect.left + baseRect.width / 2;
+    const baseCenterY = baseRect.top + baseRect.height / 2;
 
-downBtn.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    keys['ArrowDown'] = true;
-});
-
-leftBtn.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    keys['ArrowLeft'] = true;
-});
-
-rightBtn.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    keys['ArrowRight'] = true;
-});
-
-// Release keys when touch ends
-const mobileButtons = document.querySelectorAll('.control-btn');
-mobileButtons.forEach(btn => {
-    btn.addEventListener('touchend', (e) => {
+    // Touch events for mobile
+    joystickContainer.addEventListener('touchstart', (e) => {
         e.preventDefault();
-        keys['ArrowUp'] = false;
-        keys['ArrowDown'] = false;
-        keys['ArrowLeft'] = false;
-        keys['ArrowRight'] = false;
+        joystickActive = true;
+        updateJoystickPosition(e.touches[0].clientX, e.touches[0].clientY, baseCenterX, baseCenterY);
     });
-});
+
+    joystickContainer.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (joystickActive) {
+            updateJoystickPosition(e.touches[0].clientX, e.touches[0].clientY, baseCenterX, baseCenterY);
+        }
+    });
+
+    // Mouse events for devices with both touch and mouse (like some tablets)
+    joystickContainer.addEventListener('mousedown', (e) => {
+        joystickActive = true;
+        updateJoystickPosition(e.clientX, e.clientY, baseCenterX, baseCenterY);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (joystickActive) {
+            updateJoystickPosition(e.clientX, e.clientY, baseCenterX, baseCenterY);
+        }
+    });
+
+    // End joystick control on touch/mouse end
+    window.addEventListener('touchend', () => {
+        resetJoystick();
+    });
+
+    window.addEventListener('mouseup', () => {
+        resetJoystick();
+    });
+}
+
+function updateJoystickPosition(touchX, touchY, baseCenterX, baseCenterY) {
+    // Calculate distance from center
+    const dx = touchX - baseCenterX;
+    const dy = touchY - baseCenterY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // Limit joystick movement to the base radius
+    const limitedDistance = Math.min(distance, joystickRadius);
+
+    // Calculate angle
+    const angle = Math.atan2(dy, dx);
+
+    // Update joystick handle position
+    const handleX = Math.cos(angle) * limitedDistance;
+    const handleY = Math.sin(angle) * limitedDistance;
+
+    joystickHandle.style.transform = `translate(calc(-50% + ${handleX}px), calc(-50% + ${handleY}px)`;
+
+    // Normalize joystick values for movement (-1 to 1)
+    joystickX = limitedDistance > 10 ? dx / joystickRadius : 0;
+    joystickY = limitedDistance > 10 ? dy / joystickRadius : 0;
+}
+
+function resetJoystick() {
+    joystickActive = false;
+    joystickX = 0;
+    joystickY = 0;
+    joystickHandle.style.transform = 'translate(-50%, -50%)';
+}
+
+// Setup joystick on load
+setupJoystick();
 
 // Start the game
 function startGame() {
@@ -200,19 +248,27 @@ function drawBackground() {
     }
 }
 
-// Update player position based on keys pressed
+// Update player position based on keys pressed or joystick
 function updatePlayer() {
+    // Use keyboard controls if any arrow key is pressed
     if (keys['ArrowUp'] || keys['w'] || keys['W']) {
         player.y = Math.max(player.radius, player.y - player.speed);
-    }
-    if (keys['ArrowDown'] || keys['s'] || keys['S']) {
+    } else if (keys['ArrowDown'] || keys['s'] || keys['S']) {
         player.y = Math.min(canvas.height - player.radius, player.y + player.speed);
+    } else if (joystickY < -0.1) { // Joystick up
+        player.y = Math.max(player.radius, player.y - player.speed * Math.abs(joystickY));
+    } else if (joystickY > 0.1) { // Joystick down
+        player.y = Math.min(canvas.height - player.radius, player.y + player.speed * Math.abs(joystickY));
     }
+
     if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
         player.x = Math.max(player.radius, player.x - player.speed);
-    }
-    if (keys['ArrowRight'] || keys['d'] || keys['D']) {
+    } else if (keys['ArrowRight'] || keys['d'] || keys['D']) {
         player.x = Math.min(canvas.width - player.radius, player.x + player.speed);
+    } else if (joystickX < -0.1) { // Joystick left
+        player.x = Math.max(player.radius, player.x - player.speed * Math.abs(joystickX));
+    } else if (joystickX > 0.1) { // Joystick right
+        player.x = Math.min(canvas.width - player.radius, player.x + player.speed * Math.abs(joystickX));
     }
 }
 
